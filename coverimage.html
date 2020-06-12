@@ -35,6 +35,20 @@
       width: 100%;
       height: 100%;
     }
+
+    .center_img_4 {
+      position: relative;
+    }
+    .center_img_4.breadth {
+      height: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .center_img_4.high {
+      width: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+    }
   </style>
 </head>
 <body>
@@ -63,7 +77,8 @@
   <div class="center_box_container"></div>
 </body>
 <script>
-  getImage = (domCls = '') => {
+  // 方式四
+  getImage = (domCls = '', width = 0, height = 0) => {
     if (!domCls) return;
 
     // 定义一个图片数组
@@ -72,8 +87,9 @@
       { url: './statics/img-2.jpg' },
       { url: './statics/img-3.jpg' },
     ]
-    window.isLoading = true;
+    
     const doms = document.getElementsByClassName(domCls)
+    let loadingImage = 1;
     if (doms) {
       imageList.forEach((item, index) => {
         if (item.url) {
@@ -81,26 +97,30 @@
           img.src = item.url;
           img.onload = function() {
             let imgStyle = ''
+            let currentCls = ''
             if (img.width >= img.height) { // 横向图片, 高100%
-              imgStyle = 'height: 100%'
+              currentCls = 'breadth'
+              // imgStyle = `right: calc((${img.width}px - ${width}px) / 2)`
             } else {
-              imgStyle = 'width: 100%'
+              currentCls = 'high'
             }
 
-            let child = "<img class='center_img_4' src='" + item.url + "' style='" + imgStyle + "' />"
+            let child = "<img class='center_img_4 "+ currentCls + "' src='" + item.url + "' style='" + imgStyle + "' />"
             let div = document.createElement('div');
             div.className = 'center_box'
             div.innerHTML = child;
             doms[0].appendChild(div);
-            console.log('imageList.length', imageList.length - 1, index)
+
+            loadingImage++;
           };
-          if (index === imageList.length - 1) {
-            window.isLoading = false
+          
+          img.onerror = function() {
+            loadingImage++;
           }
         }
       })
 
-      if (window.isLoading) {
+      if (loadingImage === imageList.length) {
         let div_loading = document.createElement('div');
         div_loading.id = 'loading'
         div_loading.innerHTML = `<iframe src='./loading.html' scrolling='no' frameborder='0'></iframe>`
@@ -113,6 +133,6 @@
       alert('没有找到指定元素！')
     }
   }
-  window.onload = getImage('center_box_container')
+  window.onload = getImage('center_box_container', 300, 400)
 </script>
 </html>
